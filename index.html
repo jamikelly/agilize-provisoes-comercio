@@ -6,339 +6,509 @@
 <title>Provisões Comércio — Agilize</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   body { font-family: 'Inter', system-ui, sans-serif; background: #f0f4f8; }
-  .tab-btn { transition: all .2s; }
+  .tab-btn { transition: all .2s; border: none; cursor: pointer; padding: .5rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: .875rem; }
   .tab-btn.active { background: #1B3A6B; color: white; }
   .tab-btn:not(.active) { background: white; color: #444; }
   .tab-btn:not(.active):hover { background: #e8eef7; }
   .card { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1rem; }
-  .badge-sn { background: #dbeafe; color: #1d4ed8; padding: 2px 10px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
-  .badge-lp { background: #ede9fe; color: #6d28d9; padding: 2px 10px; border-radius: 12px; font-size: .75rem; font-weight: 600; }
-  .badge-ok { background: #dcfce7; color: #166534; padding: 2px 10px; border-radius: 12px; font-size: .75rem; }
-  input, select, textarea { border: 1.5px solid #d1d5db; border-radius: 8px; padding: .5rem .75rem; width: 100%; outline: none; transition: border .2s; }
+  .badge { display:inline-block; padding: 2px 10px; border-radius: 12px; font-size: .72rem; font-weight: 600; }
+  .badge-sn { background: #dbeafe; color: #1d4ed8; }
+  .badge-lp { background: #ede9fe; color: #6d28d9; }
+  .badge-ok { background: #dcfce7; color: #166534; }
+  .badge-warn { background: #fef9c3; color: #713f12; }
+  .badge-err { background: #fee2e2; color: #991b1b; }
+  .badge-socios { background: #f1f5f9; color: #475569; }
+  input, select, textarea { border: 1.5px solid #d1d5db; border-radius: 8px; padding: .45rem .7rem; outline: none; transition: border .2s; font-size: .875rem; }
   input:focus, select:focus, textarea:focus { border-color: #2E6DA4; box-shadow: 0 0 0 3px #dbeafe; }
-  .btn-primary { background: #1B3A6B; color: white; padding: .6rem 1.4rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: .2s; }
+  .btn-primary { background: #1B3A6B; color: white; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: .2s; font-size: .875rem; }
   .btn-primary:hover { background: #2E6DA4; }
-  .btn-secondary { background: #f3f4f6; color: #374151; padding: .6rem 1.4rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: 1.5px solid #d1d5db; transition: .2s; }
+  .btn-secondary { background: #f3f4f6; color: #374151; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: 1.5px solid #d1d5db; transition: .2s; font-size: .875rem; }
   .btn-secondary:hover { background: #e5e7eb; }
-  .btn-green { background: #16a34a; color: white; padding: .6rem 1.4rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: .2s; }
+  .btn-green { background: #16a34a; color: white; padding: .55rem 1.3rem; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: .2s; font-size: .875rem; }
   .btn-green:hover { background: #15803d; }
+  .btn-icon { background: none; border: none; cursor: pointer; padding: .25rem .4rem; border-radius: 6px; transition: .15s; font-size: .85rem; }
+  .btn-icon:hover { background: #fee2e2; }
   .drop-zone { border: 2px dashed #93c5fd; border-radius: 10px; padding: 2rem; text-align: center; background: #eff6ff; cursor: pointer; transition: .2s; }
   .drop-zone:hover, .drop-zone.drag { border-color: #2E6DA4; background: #dbeafe; }
-  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-  th { background: #1B3A6B; color: white; padding: .5rem .75rem; text-align: left; }
+  table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  th { background: #1B3A6B; color: white; padding: .5rem .75rem; text-align: left; font-size: .8rem; }
   tr:nth-child(even) { background: #f8fafc; }
-  td { padding: .45rem .75rem; border-bottom: 1px solid #e5e7eb; }
-  .tag-das { background: #dcfce7; color: #166534; padding: 1px 6px; border-radius: 6px; font-size: .75rem; }
-  .tag-inss { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 6px; font-size: .75rem; }
-  .tag-irrf { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 6px; font-size: .75rem; }
-  .tag-pl { background: #ede9fe; color: #5b21b6; padding: 1px 6px; border-radius: 6px; font-size: .75rem; }
-  .tag-out { background: #f3f4f6; color: #374151; padding: 1px 6px; border-radius: 6px; font-size: .75rem; }
-  .alert { padding: .75rem 1rem; border-radius: 8px; font-size: .875rem; margin: .5rem 0; }
-  .alert-ok  { background: #dcfce7; color: #14532d; border-left: 4px solid #16a34a; }
-  .alert-warn{ background: #fef9c3; color: #713f12; border-left: 4px solid #eab308; }
-  .alert-err { background: #fee2e2; color: #7f1d1d; border-left: 4px solid #dc2626; }
-  .alert-info{ background: #eff6ff; color: #1e3a5f; border-left: 4px solid #3b82f6; }
-  .code-preview { background: #0f172a; color: #a5f3fc; font-family: monospace; font-size: .78rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; max-height: 200px; overflow-y: auto; }
-  #spinner { display: none; }
+  td { padding: .45rem .75rem; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+  .tag { display:inline-block; padding: 1px 7px; border-radius: 6px; font-size: .72rem; font-weight:600; }
+  .tag-das  { background: #dcfce7; color: #166534; }
+  .tag-inss { background: #fef3c7; color: #92400e; }
+  .tag-irrf { background: #fee2e2; color: #991b1b; }
+  .tag-pl   { background: #ede9fe; color: #5b21b6; }
+  .tag-out  { background: #f3f4f6; color: #374151; }
+  .alert { padding: .7rem 1rem; border-radius: 8px; font-size: .845rem; margin: .4rem 0; }
+  .alert-ok   { background: #dcfce7; color: #14532d; border-left: 4px solid #16a34a; }
+  .alert-warn { background: #fef9c3; color: #713f12; border-left: 4px solid #eab308; }
+  .alert-err  { background: #fee2e2; color: #7f1d1d; border-left: 4px solid #dc2626; }
+  .alert-info { background: #eff6ff; color: #1e3a5f; border-left: 4px solid #3b82f6; }
+  .code-preview { background: #0f172a; color: #a5f3fc; font-family: monospace; font-size: .76rem; padding: 1rem; border-radius: 8px; white-space: pre; overflow-x: auto; max-height: 180px; overflow-y: auto; }
+  .empresa-row { border: 1.5px solid #e5e7eb; border-radius: 10px; padding: .75rem 1rem; margin-bottom: .5rem; background: #fafbfc; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+  .empresa-row:hover { border-color: #bfdbfe; background: #f0f7ff; }
+  .pdf-row { border: 1px solid #e5e7eb; border-radius: 8px; padding: .6rem 1rem; margin-bottom: .4rem; background: white; display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; font-size: .84rem; }
+  .status-dot-ok   { display:inline-block; width:8px; height:8px; background:#16a34a; border-radius:50%; }
+  .status-dot-warn { display:inline-block; width:8px; height:8px; background:#eab308; border-radius:50%; }
+  .status-dot-err  { display:inline-block; width:8px; height:8px; background:#dc2626; border-radius:50%; }
+  .empty-state { text-align: center; padding: 2.5rem; color: #9ca3af; }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: .5rem; }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<div style="background:linear-gradient(135deg,#1B3A6B 0%,#2E6DA4 100%);padding:1.2rem 2rem;color:white;">
-  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
+<div style="background:linear-gradient(135deg,#1B3A6B 0%,#2E6DA4 100%);padding:1.1rem 2rem;color:white;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
     <div>
-      <h1 style="margin:0;font-size:1.4rem;font-weight:700;">📊 Gerador de Provisões — Comércio</h1>
-      <p style="margin:.2rem 0 0;font-size:.82rem;opacity:.85;">Agilize Contabilidade · DAS + Pró-labore → CSV para Domínio Web</p>
+      <h1 style="margin:0;font-size:1.35rem;font-weight:700;">📊 Gerador de Provisões — Comércio</h1>
+      <p style="margin:.15rem 0 0;font-size:.8rem;opacity:.85;">Agilize Contabilidade · DAS + Pró-labore → CSV para Domínio Web</p>
     </div>
-    <span id="badge-empresa" style="background:rgba(255,255,255,.15);padding:.3rem .8rem;border-radius:20px;font-size:.8rem;display:none;"></span>
+    <span id="badge-counter" style="background:rgba(255,255,255,.15);padding:.3rem .9rem;border-radius:20px;font-size:.8rem;font-weight:600;display:none;"></span>
   </div>
 </div>
 
-<div style="max-width:1100px;margin:0 auto;padding:1.5rem 1rem;">
+<div style="max-width:1200px;margin:0 auto;padding:1.25rem 1rem;">
 
-<!-- SETUP -->
-<div class="card" id="card-setup">
-  <h2 style="font-size:1rem;font-weight:700;color:#1B3A6B;margin-bottom:1rem;">⚙️ Configuração da empresa e mês</h2>
-  <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:.75rem;align-items:end;">
-    <div>
-      <label style="font-size:.8rem;font-weight:600;color:#374151;">Empresa</label>
-      <input id="inp-empresa" type="text" placeholder="LOJA EXEMPLO LTDA" />
+<!-- GLOBAL CONFIG BAR -->
+<div class="card" style="margin-bottom:.75rem;padding:1rem 1.25rem;">
+  <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <label style="font-size:.8rem;font-weight:600;color:#374151;white-space:nowrap;">📅 Competência</label>
+      <input id="inp-competencia" type="text" placeholder="05/2026" maxlength="7" style="width:90px;"
+             oninput="onCompetenciaChange()"/>
     </div>
-    <div>
-      <label style="font-size:.8rem;font-weight:600;color:#374151;">Cód. Domínio</label>
-      <input id="inp-codigo" type="text" placeholder="1234" />
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <label style="font-size:.8rem;font-weight:600;color:#374151;white-space:nowrap;">Data lançamento</label>
+      <input id="inp-data" type="date" style="width:155px;"/>
     </div>
-    <div>
-      <label style="font-size:.8rem;font-weight:600;color:#374151;">Regime</label>
-      <select id="inp-regime">
-        <option>Simples Nacional</option>
-        <option>Lucro Presumido</option>
-      </select>
-    </div>
-    <div>
-      <label style="font-size:.8rem;font-weight:600;color:#374151;">Mês/Ano</label>
-      <input id="inp-competencia" type="text" placeholder="04/2025" maxlength="7"/>
-    </div>
-    <div>
-      <label style="font-size:.8rem;font-weight:600;color:#374151;">Data Lançamento</label>
-      <input id="inp-data" type="date" />
-    </div>
+    <div id="counter-chip" style="display:none;background:#dbeafe;color:#1d4ed8;padding:.3rem .9rem;border-radius:20px;font-size:.8rem;font-weight:600;"></div>
   </div>
 </div>
 
 <!-- TABS -->
-<div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-  <button class="tab-btn active" style="padding:.5rem 1.2rem;border-radius:8px;font-weight:600;border:none;cursor:pointer;" onclick="showTab('pgdas',this)">📄 1. PGDAS</button>
-  <button class="tab-btn" style="padding:.5rem 1.2rem;border-radius:8px;font-weight:600;border:none;cursor:pointer;" onclick="showTab('prolabore',this)">👥 2. Pró-labore</button>
-  <button class="tab-btn" style="padding:.5rem 1.2rem;border-radius:8px;font-weight:600;border:none;cursor:pointer;" onclick="showTab('previa',this)">🔍 3. Prévia</button>
-  <button class="tab-btn" style="padding:.5rem 1.2rem;border-radius:8px;font-weight:600;border:none;cursor:pointer;" onclick="showTab('exportar',this)">⬇️ 4. Exportar CSV</button>
+<div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;">
+  <button class="tab-btn active" id="tab-btn-1" onclick="showStep(1)">📋 1. Pró-labore OPS</button>
+  <button class="tab-btn" id="tab-btn-2" onclick="showStep(2)">📄 2. PDFs PGDAS</button>
+  <button class="tab-btn" id="tab-btn-3" onclick="showStep(3)">⬇️ 3. Exportar</button>
 </div>
 
-<!-- TAB: PGDAS -->
-<div id="tab-pgdas">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-    <div class="card">
-      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📤 Upload do PDF PGDAS</h3>
-      <p style="font-size:.8rem;color:#6b7280;margin-bottom:.75rem;">Baixe o comprovante no eCac → PGDAS-D → Consulta de Declarações → faça upload aqui.</p>
-      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('pdf-input').click()"
-           ondragover="event.preventDefault();this.classList.add('drag')"
-           ondragleave="this.classList.remove('drag')"
-           ondrop="handleDrop(event)">
-        <div style="font-size:2rem;">📄</div>
-        <p style="margin:.5rem 0 0;font-size:.85rem;color:#2E6DA4;font-weight:600;">Clique ou arraste o PDF aqui</p>
-        <p style="font-size:.75rem;color:#6b7280;margin:.25rem 0 0;">Comprovante DAS / PGDAS-D</p>
-      </div>
-      <input type="file" id="pdf-input" accept=".pdf" style="display:none" onchange="handlePDF(this.files[0])"/>
-      <div id="pdf-status" style="margin-top:.75rem;"></div>
-      <div id="pdf-raw" style="display:none;margin-top:.5rem;">
-        <details>
-          <summary style="cursor:pointer;font-size:.8rem;color:#6b7280;">Ver texto extraído do PDF</summary>
-          <pre id="pdf-raw-text" style="font-size:.7rem;background:#f8fafc;padding:.75rem;border-radius:6px;max-height:150px;overflow:auto;white-space:pre-wrap;"></pre>
-        </details>
-      </div>
-    </div>
-    <div class="card">
-      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">💰 Valores</h3>
-      <div style="margin-bottom:.75rem;">
-        <label style="font-size:.8rem;font-weight:600;color:#374151;">Valor do DAS (R$)</label>
-        <input id="inp-das" type="number" step="0.01" min="0" placeholder="0,00" style="margin-top:.25rem;"
-               oninput="atualizarDAS()"/>
-        <p style="font-size:.75rem;color:#6b7280;margin:.25rem 0 0;">Preenche automaticamente via PDF. Ajuste se necessário.</p>
-      </div>
-      <div id="box-lp" style="display:none;margin-bottom:.75rem;">
-        <label style="font-size:.8rem;font-weight:600;color:#374151;">Faturamento bruto do trimestre (R$) — LP</label>
-        <input id="inp-fat" type="number" step="0.01" min="0" placeholder="0,00" style="margin-top:.25rem;"/>
-        <p style="font-size:.75rem;color:#f59e0b;margin:.25rem 0 0;">⚠ Apenas para Lucro Presumido. Preencher no último mês do trimestre.</p>
-      </div>
-      <div id="das-preview" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.75rem;display:none;">
-        <p style="margin:0;font-size:.85rem;"><strong>✅ DAS provisionado:</strong></p>
-        <p style="margin:.3rem 0 0;font-size:.8rem;color:#374151;">D: <code>480</code> (SN a Pagar) / C: <code>479</code> (SN a Recolher)</p>
-        <p style="margin:.25rem 0 0;font-size:1rem;font-weight:700;color:#16a34a;" id="das-val-disp"></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TAB: PRÓ-LABORE -->
-<div id="tab-prolabore" style="display:none;">
+<!-- STEP 1: OPS -->
+<div id="step-1">
   <div class="card">
-    <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.5rem;">👥 Pró-labore — Cole o texto copiado do OPS</h3>
-    <div class="alert alert-info" style="margin-bottom:.75rem;">
-      <strong>Como copiar do OPS:</strong> Painel → Pró-labores → filtre por empresa e período → selecione tudo na tabela (Ctrl+A) → copie (Ctrl+C) → cole abaixo.
+    <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.5rem;">📋 Cole o texto do OPS (todas as empresas)</h3>
+    <div class="alert alert-info" style="margin-bottom:.75rem;font-size:.82rem;">
+      <strong>Como copiar:</strong> OPS → Pró-labores → filtre pelo mês/ano → selecione toda a tabela (Ctrl+A) → Ctrl+C → cole abaixo. Todas as empresas de uma vez.
     </div>
-    <textarea id="inp-prolabore" rows="8" placeholder="Competência&#9;Empresa&#9;Sócio&#9;Valor&#9;INSS&#9;Patronal&#9;IRRF&#9;Renda Extra&#9;Outros descontos&#9;Valor a receber&#9;Dependentes&#9;Compensação de Inss&#9;Ações
-01/04/2025&#9;LOJA EXEMPLO LTDA&#9;João Silva&#9;R$ 3.500,00&#9;R$ 385,00&#9;R$ 0,00&#9;R$ 85,81&#9;R$ 0,00&#9;R$ 0,00&#9;R$ 3.029,19&#9;0&#9;R$ 0,00&#9;"></textarea>
-    <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap;">
-      <button class="btn-primary" onclick="processarProlabore()">🔍 Processar pró-labore</button>
-      <button class="btn-secondary" onclick="document.getElementById('inp-prolabore').value='';document.getElementById('pl-resultado').innerHTML='';">🗑 Limpar</button>
+    <textarea id="inp-ops" rows="7" style="width:100%;font-family:monospace;font-size:.78rem;"
+      placeholder="Competência	Empresa	Sócio	Valor	INSS	Patronal	IRRF	Renda Extra	Outros descontos	Valor a receber	..."></textarea>
+    <div style="display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap;align-items:center;">
+      <button class="btn-primary" onclick="onProcessOPS()">🔍 Processar</button>
+      <button class="btn-secondary" onclick="document.getElementById('inp-ops').value='';renderEmpresaList();">🗑 Limpar OPS</button>
+      <button class="btn-secondary" onclick="adicionarEmpresaManual()">➕ Adicionar empresa manual</button>
     </div>
-    <div id="pl-resultado" style="margin-top:1rem;"></div>
+  </div>
+
+  <!-- EMPRESA LIST -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin:0;">🏢 Empresas detectadas</h3>
+      <span id="empresa-count" style="font-size:.8rem;color:#6b7280;"></span>
+    </div>
+    <div id="empresa-list"></div>
   </div>
 </div>
 
-<!-- TAB: PRÉVIA -->
-<div id="tab-previa" style="display:none;">
+<!-- STEP 2: PDFs -->
+<div id="step-2" style="display:none;">
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📄 Upload dos PDFs PGDAS (múltiplos)</h3>
+    <div class="drop-zone" id="drop-zone"
+         onclick="document.getElementById('pdf-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleDropPDF(event)">
+      <div style="font-size:2.2rem;">📄</div>
+      <p style="margin:.5rem 0 0;font-size:.875rem;color:#2E6DA4;font-weight:600;">Clique ou arraste os PDFs aqui</p>
+      <p style="font-size:.78rem;color:#6b7280;margin:.2rem 0 0;">Aceita múltiplos arquivos — um por empresa ou todos juntos</p>
+    </div>
+    <input type="file" id="pdf-input" accept=".pdf" multiple style="display:none"
+           onchange="handleFiles(this.files)"/>
+    <div id="pdf-spinner" style="display:none;text-align:center;padding:1rem;color:#6b7280;font-size:.85rem;">
+      ⏳ Processando PDFs...
+    </div>
+  </div>
+
+  <div id="pdf-list-container" style="display:none;">
+    <div class="card">
+      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📋 PDFs carregados</h3>
+      <div id="pdf-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3: EXPORTAR -->
+<div id="step-3" style="display:none;">
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
-      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin:0;">🔍 Prévia dos lançamentos</h3>
-      <button class="btn-primary" onclick="gerarLancamentos()">⚡ Gerar lançamentos</button>
+      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin:0;">⬇️ Resumo e exportação</h3>
+      <button class="btn-green" onclick="downloadZIP()" style="font-size:.95rem;padding:.65rem 1.5rem;">
+        ⬇️ Baixar todos os CSVs (ZIP)
+      </button>
     </div>
-    <div id="previa-metricas" style="display:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;margin-bottom:1rem;"></div>
-    <div id="previa-tabela"></div>
+    <div id="revisao-tabela"></div>
   </div>
-</div>
 
-<!-- TAB: EXPORTAR -->
-<div id="tab-exportar" style="display:none;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-    <div class="card">
-      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📥 Baixar CSV</h3>
-      <div id="export-status">
-        <div class="alert alert-warn">Gere os lançamentos na aba <strong>Prévia</strong> antes de exportar.</div>
-      </div>
-      <div id="export-action" style="display:none;">
-        <div id="csv-preview-box" style="margin-bottom:1rem;"></div>
-        <button class="btn-green" id="btn-download" onclick="downloadCSV()" style="width:100%;font-size:1rem;padding:.8rem;">
-          ⬇️ Baixar CSV para Domínio
-        </button>
-      </div>
-    </div>
-    <div class="card">
-      <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📌 Como importar no Domínio</h3>
-      <ol style="font-size:.85rem;color:#374151;padding-left:1.2rem;line-height:2;">
-        <li>Baixe o arquivo CSV acima</li>
-        <li><strong>Utilitários → Importação → Importação Padrão</strong></li>
-        <li>Tipo: <code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;">TXT</code></li>
-        <li>Conjunto de dados:<br><code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:.78rem;">Lançamentos Contábeis (Partida Simples/Múltiplas) [2.0] [Excel (2.0)]</code></li>
-        <li>Selecione o arquivo → <strong>Todos</strong></li>
-        <li>Clique <strong>Importar</strong> → revise → <strong>Gravar</strong></li>
-      </ol>
-    </div>
+  <div class="card">
+    <h3 style="font-size:.95rem;font-weight:700;color:#1B3A6B;margin-bottom:.75rem;">📌 Como importar no Domínio Web</h3>
+    <ol style="font-size:.85rem;color:#374151;padding-left:1.4rem;line-height:2.1;">
+      <li>Baixe o ZIP acima e extraia os arquivos CSV</li>
+      <li><strong>Utilitários → Importação → Importação Padrão</strong></li>
+      <li>Tipo: <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;">TXT</code></li>
+      <li>Conjunto de dados: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:.78rem;">Lançamentos Contábeis (Partida Simples/Múltiplas) [2.0] [Excel (2.0)]</code></li>
+      <li>Selecione o arquivo CSV da empresa → <strong>Todos</strong></li>
+      <li>Clique <strong>Importar</strong> → revise os lançamentos → <strong>Gravar</strong></li>
+    </ol>
   </div>
 </div>
 
 </div><!-- /container -->
 
 <script>
-// ─── PDF.js setup ─────────────────────────────────────────────────────────────
-// Worker já carregado via <script> — funciona em file:// e http://
+// ─── PDF.js ───────────────────────────────────────────────────────────────────
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ─── Estado global ────────────────────────────────────────────────────────────
-let state = {
-  das: 0,
-  prolabores: [],   // [{socio, bruto, inss, irrf, outros, liquido}]
-  lancamentos: [],
+const G = {
+  competencia: '',  // "05/2026"
+  empresas: new Map(),  // id -> Empresa
+  order: [],            // ids in display order
+  pdfs: [],             // parsed PDF objects
 };
-
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
-function showTab(name, btn) {
-  ['pgdas','prolabore','previa','exportar'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = 'none';
-  });
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+name).style.display = '';
-  btn.classList.add('active');
-}
-
-// Regime toggle
-document.getElementById('inp-regime').addEventListener('change', function() {
-  document.getElementById('box-lp').style.display =
-    this.value === 'Lucro Presumido' ? 'block' : 'none';
-});
+// Empresa: { id, nome, codigo, regime, das, fatLP, prolabores[], pdfCnpj }
+// Prolabore: { socio, bruto, inss, irrf, outros, liquido, mes, ano }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parseBRL(s) {
-  if (!s) return 0;
-  return parseFloat(String(s).replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+  if (s == null) return 0;
+  const str = String(s).replace(/[R$\s]/g, '').replace(/\./g, '').replace(',', '.');
+  return parseFloat(str) || 0;
 }
+
 function fmtBRL(v) {
-  return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  if (!v || isNaN(v)) return 'R$ 0,00';
+  return 'R$ ' + Number(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
-function fmtDate(d) {
+
+function fmtDateDMY(d) {
   if (!d) return '';
-  const dt = d instanceof Date ? d : new Date(d);
-  return dt.toLocaleDateString('pt-BR');
+  const p = v => String(v).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
 }
+
 function getDataLanc() {
   const v = document.getElementById('inp-data').value;
   if (v) return new Date(v + 'T12:00:00');
-  const comp = document.getElementById('inp-competencia').value;
+  const comp = G.competencia || document.getElementById('inp-competencia').value.trim();
   const m = comp.match(/(\d{2})\/(\d{4})/);
-  if (m) {
-    const lastDay = new Date(+m[2], +m[1], 0).getDate();
-    return new Date(+m[2], +m[1]-1, lastDay, 12);
-  }
+  if (m) return new Date(+m[2], +m[1], 0, 12, 0, 0); // last day of month
   return new Date();
 }
-function fmtDateDMY(d) {
-  const p = v => String(v).padStart(2,'0');
-  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
-}
-function getCompetencia() {
-  return document.getElementById('inp-competencia').value.trim();
-}
-function getMesAno() {
-  const c = getCompetencia();
-  const m = c.match(/(\d{2})\/(\d{4})/);
-  return m ? {mes: +m[1], ano: +m[2]} : null;
+
+function normNome(s) {
+  if (!s) return '';
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')  // remove accents
+    .replace(/\b(ltda|me|eireli|eirele|epp|sa|s\.a|s\/a|microempresa|comercio|com|ind)\b/g, '')
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-// ─── DAS preview ──────────────────────────────────────────────────────────────
-function atualizarDAS() {
-  const val = parseFloat(document.getElementById('inp-das').value) || 0;
-  state.das = val;
-  const box = document.getElementById('das-preview');
-  if (val > 0) {
-    box.style.display = 'block';
-    document.getElementById('das-val-disp').textContent = fmtBRL(val);
-  } else {
-    box.style.display = 'none';
+function matchScore(a, b) {
+  const na = normNome(a), nb = normNome(b);
+  if (!na || !nb) return 0;
+  if (na === nb) return 100;
+  // Word overlap score
+  const wa = new Set(na.split(' ').filter(w => w.length > 2));
+  const wb = new Set(nb.split(' ').filter(w => w.length > 2));
+  if (wa.size === 0 || wb.size === 0) return 0;
+  let common = 0;
+  for (const w of wa) if (wb.has(w)) common++;
+  const score = (common / Math.max(wa.size, wb.size)) * 100;
+  // Boost if one contains the other
+  if (na.includes(nb) || nb.includes(na)) return Math.max(score, 70);
+  return score;
+}
+
+function findBestMatch(nome) {
+  let best = null, bestScore = 30; // minimum threshold
+  for (const [id, emp] of G.empresas) {
+    const s = matchScore(nome, emp.nome);
+    if (s > bestScore) { bestScore = s; best = id; }
+  }
+  return best;
+}
+
+function mkId(nome) {
+  return normNome(nome).replace(/\s+/g, '_').substring(0, 50) || ('emp_' + Date.now());
+}
+
+function getMesAnoStr() {
+  const c = (G.competencia || document.getElementById('inp-competencia').value || '').trim();
+  return c;
+}
+
+// ─── Competência ──────────────────────────────────────────────────────────────
+function onCompetenciaChange() {
+  const v = document.getElementById('inp-competencia').value.trim();
+  G.competencia = v;
+  // Auto-fill data lançamento to last day of month
+  const m = v.match(/^(\d{2})\/(\d{4})$/);
+  if (m) {
+    const lastDay = new Date(+m[2], +m[1], 0);
+    const y = lastDay.getFullYear();
+    const mo = String(lastDay.getMonth() + 1).padStart(2, '0');
+    const d = String(lastDay.getDate()).padStart(2, '0');
+    document.getElementById('inp-data').value = `${y}-${mo}-${d}`;
   }
 }
 
-// ─── PDF HANDLING ─────────────────────────────────────────────────────────────
-function handleDrop(e) {
+// ─── OPS Parser ───────────────────────────────────────────────────────────────
+function parsearOPS(texto) {
+  const result = new Map(); // nomeEmpresa -> Prolabore[]
+  const linhas = texto.split('\n');
+  const comp = G.competencia || document.getElementById('inp-competencia').value.trim();
+  const mComp = comp.match(/^(\d{2})\/(\d{4})$/);
+  const filterMes = mComp ? +mComp[1] : null;
+  const filterAno = mComp ? +mComp[2] : null;
+
+  for (const linha of linhas) {
+    const cols = linha.split('\t').map(s => s.trim());
+    if (cols.length < 10) continue;
+
+    // Skip header rows
+    if (/^compet[êe]ncia$/i.test(cols[0]) || /^empresa$/i.test(cols[1])) continue;
+    if (!cols[0] || !cols[1] || !cols[2]) continue;
+
+    // col[0] = competência date like "01/04/2025" or "04/2025"
+    const mDate = cols[0].match(/(\d{1,2})\/(\d{4})/);
+    if (!mDate) continue;
+
+    let mes, ano;
+    // "01/04/2025" -> day/month/year; "04/2025" -> month/year
+    const raw = cols[0];
+    const parts = raw.split('/');
+    if (parts.length === 3) {
+      // DD/MM/AAAA
+      mes = +parts[1];
+      ano = +parts[2];
+    } else if (parts.length === 2) {
+      // MM/AAAA
+      mes = +parts[0];
+      ano = +parts[1];
+    } else {
+      continue;
+    }
+
+    if (filterMes && filterAno) {
+      if (mes !== filterMes || ano !== filterAno) continue;
+    }
+
+    const nomeEmpresa = cols[1].trim();
+    const socio = cols[2].trim();
+    const bruto   = parseBRL(cols[3]);
+    const inss    = parseBRL(cols[4] || '0');
+    // cols[5] = patronal (skip)
+    const irrf    = parseBRL(cols[6] || '0');
+    // cols[7] = renda extra (skip)
+    const outros  = parseBRL(cols[8] || '0');
+    const liquido = parseBRL(cols[9] || '0') || Math.max(0, bruto - inss - irrf - outros);
+
+    if (!nomeEmpresa || !socio || bruto <= 0) continue;
+
+    if (!result.has(nomeEmpresa)) result.set(nomeEmpresa, []);
+    result.get(nomeEmpresa).push({ socio, bruto, inss, irrf, outros, liquido, mes, ano });
+  }
+
+  return result;
+}
+
+function onProcessOPS() {
+  const texto = document.getElementById('inp-ops').value.trim();
+  if (!texto) {
+    alert('Cole o texto do OPS antes de processar.');
+    return;
+  }
+
+  const parsed = parsearOPS(texto);
+  if (parsed.size === 0) {
+    const comp = getMesAnoStr();
+    alert(`Nenhum registro encontrado${comp ? ' para ' + comp : ''}. Verifique se a competência está correta e se o texto foi copiado corretamente.`);
+    return;
+  }
+
+  // Merge into G.empresas (preserve existing codigo/regime if already exists)
+  for (const [nomeEmpresa, prolabores] of parsed) {
+    const id = mkId(nomeEmpresa);
+    if (G.empresas.has(id)) {
+      // Update prolabores only
+      G.empresas.get(id).prolabores = prolabores;
+    } else {
+      G.empresas.set(id, {
+        id, nome: nomeEmpresa, codigo: '', regime: 'SN',
+        das: 0, fatLP: 0, prolabores, pdfCnpj: null,
+      });
+      G.order.push(id);
+    }
+  }
+
+  renderEmpresaList();
+  updateCounter();
+}
+
+function adicionarEmpresaManual() {
+  const nome = prompt('Nome da empresa:');
+  if (!nome || !nome.trim()) return;
+  const id = mkId(nome.trim()) + '_' + Date.now();
+  G.empresas.set(id, {
+    id, nome: nome.trim(), codigo: '', regime: 'SN',
+    das: 0, fatLP: 0, prolabores: [], pdfCnpj: null,
+  });
+  G.order.push(id);
+  renderEmpresaList();
+  updateCounter();
+}
+
+function renderEmpresaList() {
+  const container = document.getElementById('empresa-list');
+  const countEl = document.getElementById('empresa-count');
+
+  if (G.order.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🏢</div>
+        <p>Nenhuma empresa ainda. Cole o texto do OPS acima ou adicione manualmente.</p>
+      </div>`;
+    countEl.textContent = '';
+    return;
+  }
+
+  countEl.textContent = `${G.order.length} empresa(s)`;
+
+  let html = '';
+  for (const id of G.order) {
+    const emp = G.empresas.get(id);
+    if (!emp) continue;
+    const regBadge = emp.regime === 'SN'
+      ? '<span class="badge badge-sn">SN</span>'
+      : '<span class="badge badge-lp">LP</span>';
+    const nSocios = emp.prolabores.length;
+    const totalBruto = emp.prolabores.reduce((s, p) => s + p.bruto, 0);
+    html += `
+      <div class="empresa-row" id="erow-${id}">
+        <div style="flex:1;min-width:200px;">
+          <input type="text" value="${escHtml(emp.nome)}" style="font-weight:600;font-size:.875rem;width:100%;"
+                 onchange="G.empresas.get('${id}').nome=this.value;updateCounter();"
+                 title="Nome da empresa (editável)"/>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+          <input type="text" value="${escHtml(emp.codigo)}" placeholder="Cód. Domínio"
+                 style="width:110px;font-size:.82rem;"
+                 onchange="G.empresas.get('${id}').codigo=this.value.trim();"
+                 title="Código no Domínio Web"/>
+          <select style="width:110px;font-size:.82rem;" onchange="G.empresas.get('${id}').regime=this.value;renderEmpresaList();">
+            <option value="SN" ${emp.regime==='SN'?'selected':''}>Simples Nac.</option>
+            <option value="LP" ${emp.regime==='LP'?'selected':''}>Lucro Pres.</option>
+          </select>
+          ${regBadge}
+          <span class="badge badge-socios" title="Sócios">${nSocios} sócio(s)</span>
+          ${totalBruto > 0 ? `<span style="font-size:.8rem;color:#374151;font-weight:600;">${fmtBRL(totalBruto)}</span>` : ''}
+          <button class="btn-icon" title="Excluir empresa" onclick="excluirEmpresa('${id}')">🗑</button>
+        </div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function excluirEmpresa(id) {
+  if (!confirm('Remover esta empresa?')) return;
+  G.empresas.delete(id);
+  G.order = G.order.filter(i => i !== id);
+  renderEmpresaList();
+  updateCounter();
+}
+
+// ─── PDF Handler ──────────────────────────────────────────────────────────────
+function handleDropPDF(e) {
   e.preventDefault();
   document.getElementById('drop-zone').classList.remove('drag');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type === 'application/pdf') handlePDF(f);
+  handleFiles(e.dataTransfer.files);
 }
 
-async function handlePDF(file) {
-  if (!file) return;
-  const status = document.getElementById('pdf-status');
-  status.innerHTML = '<div class="alert alert-info">⏳ Lendo PDF...</div>';
+async function handleFiles(files) {
+  if (!files || files.length === 0) return;
+  const spinner = document.getElementById('pdf-spinner');
+  spinner.style.display = 'block';
 
-  try {
-    const ab = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: ab}).promise;
-    let texto = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const pg = await pdf.getPage(i);
-      const content = await pg.getTextContent();
-      texto += content.items.map(x => x.str).join(' ') + '\n';
-    }
-
-    document.getElementById('pdf-raw-text').textContent = texto.substring(0,3000);
-    document.getElementById('pdf-raw').style.display = 'block';
-
-    const resultado = parsePGDAS(texto);
-    let html = '<div class="alert alert-ok">✅ PDF lido com sucesso!</div>';
-
-    if (resultado.cnpj)
-      html += `<p style="font-size:.83rem;margin:.3rem 0;">🏢 CNPJ: <strong>${resultado.cnpj}</strong></p>`;
-    if (resultado.competencia)
-      html += `<p style="font-size:.83rem;margin:.3rem 0;">📅 Competência: <strong>${resultado.competencia}</strong></p>`;
-    if (resultado.das > 0) {
-      html += `<p style="font-size:.83rem;margin:.3rem 0;">💰 DAS: <strong>${fmtBRL(resultado.das)}</strong></p>`;
-      document.getElementById('inp-das').value = resultado.das.toFixed(2);
-      state.das = resultado.das;
-      atualizarDAS();
-    }
-    if (resultado.faturamento > 0)
-      html += `<p style="font-size:.83rem;margin:.3rem 0;">📈 Faturamento: <strong>${fmtBRL(resultado.faturamento)}</strong></p>`;
-
-    if (resultado.das === 0 && resultado.faturamento === 0) {
-      html += '<div class="alert alert-warn">⚠️ Não foi possível extrair os valores automaticamente. Preencha manualmente abaixo.</div>';
-    }
-    status.innerHTML = html;
-  } catch(e) {
-    status.innerHTML = `<div class="alert alert-err">❌ Erro ao ler PDF: ${e.message}. Preencha os valores manualmente.</div>`;
+  const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+  if (pdfFiles.length === 0) {
+    spinner.style.display = 'none';
+    alert('Nenhum arquivo PDF encontrado.');
+    return;
   }
+
+  for (const file of pdfFiles) {
+    try {
+      const result = await parsePDF(file);
+      result.file = file;
+      result.matchedId = findBestMatch(result.nomeEmpresa || '');
+      // Store DAS into matched empresa
+      if (result.matchedId && result.das > 0) {
+        G.empresas.get(result.matchedId).das = result.das;
+      }
+      G.pdfs.push(result);
+    } catch(e) {
+      G.pdfs.push({ file, error: e.message, matchedId: null, das: 0, cnpj: null, competencia: null, nomeEmpresa: null });
+    }
+  }
+
+  spinner.style.display = 'none';
+  renderPDFList();
 }
 
-function parsePGDAS(texto) {
-  const r = { cnpj: null, competencia: null, das: 0, faturamento: 0 };
+async function parsePDF(file) {
+  const ab = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  let texto = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const pg = await pdf.getPage(i);
+    const content = await pg.getTextContent();
+    // Join items per line using transform y-position heuristic
+    const items = content.items;
+    let lastY = null;
+    for (const item of items) {
+      const y = item.transform ? item.transform[5] : null;
+      if (lastY !== null && Math.abs(y - lastY) > 5) texto += '\n';
+      texto += item.str + ' ';
+      lastY = y;
+    }
+    texto += '\n';
+  }
+  return parsePGDASText(texto);
+}
+
+function parsePGDASText(texto) {
+  const r = { cnpj: null, competencia: null, das: 0, nomeEmpresa: null };
 
   // CNPJ
   const mCNPJ = texto.match(/(\d{2}[\.\s]?\d{3}[\.\s]?\d{3}[\s\/]?\d{4}[-\s]?\d{2})/);
-  if (mCNPJ) r.cnpj = mCNPJ[1];
+  if (mCNPJ) r.cnpj = mCNPJ[1].replace(/\s/g, '');
 
   // Competência
   const mComp = texto.match(/[Pp]er[íi]odo.*?(\d{2}\/\d{4})|[Cc]ompet[êe]ncia.*?(\d{2}\/\d{4})/);
@@ -348,245 +518,322 @@ function parsePGDAS(texto) {
     if (mDate) r.competencia = mDate[1];
   }
 
-  // DAS
+  // Empresa name
+  const linhas = texto.split('\n');
+  for (let i = 0; i < linhas.length; i++) {
+    const l = linhas[i].trim();
+    if (/raz[ãa]o\s*social|nome\s*empresarial|contribuinte/i.test(l)) {
+      // Try next non-empty line
+      for (let j = i + 1; j < Math.min(i + 4, linhas.length); j++) {
+        const next = linhas[j].trim();
+        if (next.length > 3 && !/^\d/.test(next)) {
+          r.nomeEmpresa = next;
+          break;
+        }
+      }
+      if (r.nomeEmpresa) break;
+    }
+  }
+
+  // DAS value patterns (try in order)
   const padroesDAS = [
     /[Vv]alor\s+[Tt]otal\s+[Aa]\s+[Rr]ecolher[:\s]*R?\$?\s*([\d.,]+)/,
     /[Vv]alor\s+[Aa]\s+[Rr]ecolher[:\s]*R?\$?\s*([\d.,]+)/,
     /[Tt]otal\s+[Aa]\s+[Rr]ecolher[:\s]*R?\$?\s*([\d.,]+)/,
     /DAS[:\s]+R?\$?\s*([\d.,]+)/,
-    /[Vv]alor\s+do\s+DAS[:\s]*R?\$?\s*([\d.,]+)/,
     /TOTAL[:\s]*R?\$?\s*([\d.,]+)/i,
   ];
   for (const p of padroesDAS) {
     const m = texto.match(p);
-    if (m) { r.das = parseBRL(m[1]); if (r.das > 0) break; }
-  }
-
-  // Faturamento
-  const padroesFat = [
-    /[Rr]eceita\s+[Bb]ruta\s+[Tt]otal[:\s]*R?\$?\s*([\d.,]+)/,
-    /[Rr]eceita\s+[Bb]ruta[:\s]*R?\$?\s*([\d.,]+)/,
-    /[Ff]aturamento[:\s]*R?\$?\s*([\d.,]+)/,
-  ];
-  for (const p of padroesFat) {
-    const m = texto.match(p);
-    if (m) { r.faturamento = parseBRL(m[1]); if (r.faturamento > 0) break; }
+    if (m) {
+      const v = parseBRL(m[1]);
+      if (v > 0) { r.das = v; break; }
+    }
   }
 
   return r;
 }
 
-// ─── PRÓ-LABORE PARSER ────────────────────────────────────────────────────────
-function processarProlabore() {
-  const texto = document.getElementById('inp-prolabore').value.trim();
-  if (!texto) {
-    document.getElementById('pl-resultado').innerHTML =
-      '<div class="alert alert-warn">Cole o texto do OPS antes de processar.</div>';
+function renderPDFList() {
+  const container = document.getElementById('pdf-list-container');
+  const list = document.getElementById('pdf-list');
+
+  if (G.pdfs.length === 0) {
+    container.style.display = 'none';
     return;
   }
+  container.style.display = 'block';
 
-  const CABECALHOS = new Set(['competência','competencia','empresa','sócio','socio',
-    'valor','inss','patronal','irrf','renda extra','outros descontos','valor a receber',
-    'dependentes','compensação','compensacao','ações','acoes']);
+  // Build empresa options for dropdown
+  const empOptions = G.order.map(id => {
+    const e = G.empresas.get(id);
+    return `<option value="${id}">${escHtml(e.nome)}</option>`;
+  }).join('');
 
-  const linhas = texto.split('\n').map(l => l.trim()).filter(Boolean);
-  const dadosLinhas = [];
-  let buffer = '';
+  let html = '';
+  G.pdfs.forEach((pdf, idx) => {
+    const fname = pdf.file ? pdf.file.name : 'desconhecido';
+    const statusDot = pdf.error
+      ? '<span class="status-dot-err" title="Erro"></span>'
+      : pdf.matchedId
+        ? '<span class="status-dot-ok" title="Correspondência encontrada"></span>'
+        : '<span class="status-dot-warn" title="Sem correspondência"></span>';
 
-  for (const linha of linhas) {
-    if (CABECALHOS.has(linha.toLowerCase())) continue;
-    if (linha.includes('\t')) {
-      if (buffer) dadosLinhas.push(buffer);
-      buffer = linha;
-    } else if (/R\$\s*[\d.,]+/.test(linha) && !linha.includes('\t')) {
-      buffer = (buffer + '\t' + linha).trim();
-    } else if (buffer) {
-      buffer = (buffer + '\t' + linha).trim();
-    }
+    const matchBadge = pdf.matchedId
+      ? `<span class="badge badge-ok">${escHtml(G.empresas.get(pdf.matchedId)?.nome || '')}</span>`
+      : `<span class="badge badge-warn">sem correspondência</span>`;
+
+    const dasBadge = pdf.das > 0
+      ? `<span style="font-size:.8rem;color:#166534;font-weight:600;">${fmtBRL(pdf.das)}</span>`
+      : `<span style="font-size:.78rem;color:#9ca3af;">DAS não encontrado</span>`;
+
+    const compBadge = pdf.competencia
+      ? `<span style="font-size:.78rem;color:#6b7280;">${pdf.competencia}</span>`
+      : '';
+
+    html += `
+      <div class="pdf-row">
+        ${statusDot}
+        <span style="font-weight:600;flex:1;min-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(fname)}">${escHtml(fname)}</span>
+        ${matchBadge}
+        ${dasBadge}
+        ${compBadge}
+        ${pdf.error ? `<span style="color:#dc2626;font-size:.78rem;">Erro: ${escHtml(pdf.error)}</span>` : ''}
+        <div style="display:flex;align-items:center;gap:.5rem;margin-left:auto;flex-wrap:wrap;">
+          <input type="number" step="0.01" min="0" placeholder="DAS manual"
+                 style="width:120px;font-size:.8rem;"
+                 value="${pdf.das > 0 ? pdf.das.toFixed(2) : ''}"
+                 onchange="updatePdfDAS(${idx}, this.value)"/>
+          <select style="width:160px;font-size:.8rem;" onchange="updatePdfMatch(${idx}, this.value)">
+            <option value="">-- vincular empresa --</option>
+            ${empOptions}
+          </select>
+        </div>
+      </div>`;
+  });
+  list.innerHTML = html;
+
+  // Set current selections
+  G.pdfs.forEach((pdf, idx) => {
+    const sel = list.querySelectorAll('select')[idx];
+    if (sel && pdf.matchedId) sel.value = pdf.matchedId;
+  });
+}
+
+function updatePdfDAS(idx, val) {
+  const v = parseFloat(val) || 0;
+  G.pdfs[idx].das = v;
+  if (G.pdfs[idx].matchedId) {
+    G.empresas.get(G.pdfs[idx].matchedId).das = v;
   }
-  if (buffer) dadosLinhas.push(buffer);
+}
 
-  const myComp = getMesAno();
-  const registros = [];
+function updatePdfMatch(idx, empId) {
+  const pdf = G.pdfs[idx];
+  pdf.matchedId = empId || null;
+  if (empId && pdf.das > 0) {
+    G.empresas.get(empId).das = pdf.das;
+  }
+}
 
-  for (const linha of dadosLinhas) {
-    const p = linha.split('\t').map(s => s.trim());
-    if (p.length < 4) continue;
-    const mComp = p[0].match(/(\d{1,2})\/(\d{4})/);
-    if (!mComp) continue;
-    const mes = +mComp[1], ano = +mComp[2];
-    if (myComp && (mes !== myComp.mes || ano !== myComp.ano)) continue;
-    const bruto   = parseBRL(p[3]);
-    const inss    = parseBRL(p[4] || '0');
-    const irrf    = parseBRL(p[6] || '0');
-    const outros  = parseBRL(p[8] || '0');
-    const liquido = parseBRL(p[9] || '0') || Math.max(0, bruto - inss - irrf - outros);
-    if (bruto <= 0) continue;
-    registros.push({
-      mes, ano,
-      empresa: (p[1]||'').trim(),
-      socio:   (p[2]||'').trim(),
-      bruto, inss, irrf, outros, liquido,
+// ─── Lançamentos ──────────────────────────────────────────────────────────────
+function gerarLancamentosEmp(emp, dtStr, mesAno) {
+  const lancs = [];
+
+  // DAS (only SN)
+  if (emp.regime === 'SN' && emp.das > 0) {
+    lancs.push({
+      tipo: 'DAS', debito: '480', credito: '479', valor: emp.das,
+      historico: `REF. DAS ${mesAno} - SIMPLES NACIONAL`,
     });
   }
 
-  state.prolabores = registros;
-
-  if (!registros.length) {
-    let aviso = 'Nenhum registro encontrado';
-    if (myComp) aviso += ` para ${String(myComp.mes).padStart(2,'0')}/${myComp.ano}`;
-    aviso += '. Verifique se a competência está preenchida corretamente.';
-    document.getElementById('pl-resultado').innerHTML =
-      `<div class="alert alert-warn">⚠️ ${aviso}</div>`;
-    return;
-  }
-
-  let html = `<div class="alert alert-ok">✅ ${registros.length} sócio(s) encontrado(s)</div>`;
-  html += `<div style="overflow-x:auto;margin-top:.75rem;"><table>
-    <thead><tr><th>Sócio</th><th>Bruto</th><th>INSS</th><th>IRRF</th><th>Outros</th><th>Líquido</th></tr></thead><tbody>`;
-  for (const r of registros) {
-    html += `<tr>
-      <td><strong>${r.socio}</strong></td>
-      <td>${fmtBRL(r.bruto)}</td>
-      <td style="color:#92400e;">${fmtBRL(r.inss)}</td>
-      <td style="color:#991b1b;">${fmtBRL(r.irrf)}</td>
-      <td>${fmtBRL(r.outros)}</td>
-      <td style="color:#166534;font-weight:600;">${fmtBRL(r.liquido)}</td>
-    </tr>`;
-  }
-  html += '</tbody></table></div>';
-  document.getElementById('pl-resultado').innerHTML = html;
-}
-
-// ─── GERAR LANÇAMENTOS ────────────────────────────────────────────────────────
-function gerarLancamentos() {
-  const comp = getCompetencia();
-  const dataLanc = getDataLanc();
-  const dtStr = fmtDateDMY(dataLanc);
-  const mesAno = comp || dtStr.substring(3);
-  const lancs = [];
-  const tags = {
-    'DAS': 'tag-das', 'INSS': 'tag-inss', 'IRRF': 'tag-irrf',
-    'Pró-labore líquido': 'tag-pl', 'Outros desc.': 'tag-out',
-  };
-
-  // DAS
-  state.das = parseFloat(document.getElementById('inp-das').value) || 0;
-  if (state.das > 0) {
-    lancs.push({tipo:'DAS', debito:'480', credito:'479', valor: state.das,
-      historico: `REF. DAS ${mesAno} - SIMPLES NACIONAL`});
-  }
-
-  // Pró-labore
-  for (const pl of state.prolabores) {
+  // Pró-labore por sócio
+  for (const pl of emp.prolabores) {
     const nome = pl.socio.toUpperCase();
     if (pl.inss > 0)
-      lancs.push({tipo:'INSS', debito:'332', credito:'191', valor: pl.inss,
-        historico: `REF. INSS PRO-LABORE ${nome} - ${mesAno}`});
+      lancs.push({ tipo:'INSS', debito:'332', credito:'191', valor: pl.inss,
+        historico: `REF. INSS PRO-LABORE ${nome} - ${mesAno}` });
     if (pl.irrf > 0)
-      lancs.push({tipo:'IRRF', debito:'332', credito:'179', valor: pl.irrf,
-        historico: `REF. IRRF PRO-LABORE ${nome} - ${mesAno}`});
+      lancs.push({ tipo:'IRRF', debito:'332', credito:'179', valor: pl.irrf,
+        historico: `REF. IRRF PRO-LABORE ${nome} - ${mesAno}` });
     if (pl.outros > 0)
-      lancs.push({tipo:'Outros desc.', debito:'332', credito:'529', valor: pl.outros,
-        historico: `REF. OUTROS DESC PRO-LABORE ${nome} - ${mesAno}`});
+      lancs.push({ tipo:'Outros', debito:'332', credito:'529', valor: pl.outros,
+        historico: `REF. OUTROS DESC PRO-LABORE ${nome} - ${mesAno}` });
     if (pl.liquido > 0)
-      lancs.push({tipo:'Pró-labore líquido', debito:'332', credito:'188', valor: pl.liquido,
-        historico: `REF. PRO-LABORE ${nome} - ${mesAno}`});
+      lancs.push({ tipo:'Pró-labore', debito:'332', credito:'188', valor: pl.liquido,
+        historico: `REF. PRO-LABORE ${nome} - ${mesAno}` });
   }
 
-  state.lancamentos = lancs;
+  return lancs;
+}
 
-  if (!lancs.length) {
-    document.getElementById('previa-tabela').innerHTML =
-      '<div class="alert alert-warn">Nenhum lançamento. Verifique se preencheu o DAS e/ou processou o pró-labore.</div>';
+function buildCSV(lancamentos, dtStr) {
+  return lancamentos.map(l =>
+    `${dtStr},${l.debito},${l.credito},${l.valor.toFixed(2)},,${l.historico},1`
+  ).join('\n');
+}
+
+function empStatus(emp) {
+  const hasDAS = emp.regime === 'SN' ? emp.das > 0 : true;
+  const hasPL = emp.prolabores.length > 0;
+  const hasCode = emp.codigo.trim().length > 0;
+  if (!hasDAS && !hasPL) return { label: '❌ sem dados', cls: 'badge-err' };
+  if (!hasDAS) return { label: '⚠ sem DAS', cls: 'badge-warn' };
+  if (!hasPL) return { label: '⚠ sem pró-labore', cls: 'badge-warn' };
+  if (!hasCode) return { label: '⚠ sem código', cls: 'badge-warn' };
+  return { label: '✅ pronto', cls: 'badge-ok' };
+}
+
+// ─── Render revisão ───────────────────────────────────────────────────────────
+function renderRevisao() {
+  const dtStr = fmtDateDMY(getDataLanc());
+  const mesAno = getMesAnoStr();
+  const container = document.getElementById('revisao-tabela');
+
+  if (G.order.length === 0) {
+    container.innerHTML = '<div class="alert alert-warn">Nenhuma empresa configurada. Volte ao Passo 1.</div>';
     return;
   }
 
-  // Métricas
-  const totalDAS = lancs.filter(l=>l.tipo==='DAS').reduce((s,l)=>s+l.valor,0);
-  const totalPL  = lancs.filter(l=>l.tipo==='Pró-labore líquido').reduce((s,l)=>s+l.valor,0);
-  const nSocios  = new Set(state.prolabores.map(p=>p.socio)).size;
-  document.getElementById('previa-metricas').style.display = 'grid';
-  document.getElementById('previa-metricas').innerHTML = `
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.75rem;text-align:center;">
-      <div style="font-size:.75rem;color:#6b7280;">Total lançamentos</div>
-      <div style="font-size:1.4rem;font-weight:700;color:#1B3A6B;">${lancs.length}</div>
-    </div>
-    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:.75rem;text-align:center;">
-      <div style="font-size:.75rem;color:#6b7280;">DAS</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#16a34a;">${fmtBRL(totalDAS)}</div>
-    </div>
-    <div style="background:#faf5ff;border:1px solid #ddd6fe;border-radius:8px;padding:.75rem;text-align:center;">
-      <div style="font-size:.75rem;color:#6b7280;">Pró-labore líquido</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#6d28d9;">${fmtBRL(totalPL)}</div>
-    </div>
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:.75rem;text-align:center;">
-      <div style="font-size:.75rem;color:#6b7280;">Sócios</div>
-      <div style="font-size:1.4rem;font-weight:700;color:#ea580c;">${nSocios}</div>
-    </div>`;
-
-  // Tabela
   let html = `<div style="overflow-x:auto;"><table>
-    <thead><tr><th>#</th><th>Tipo</th><th>D</th><th>C</th><th>Valor</th><th>Histórico</th></tr></thead><tbody>`;
-  lancs.forEach((l,i) => {
-    const tc = tags[l.tipo] || 'tag-out';
+    <thead><tr>
+      <th>Empresa</th><th>Código</th><th>Regime</th><th>DAS</th><th>Sócios</th><th>Lançamentos</th><th>Status</th><th></th>
+    </tr></thead><tbody>`;
+
+  for (const id of G.order) {
+    const emp = G.empresas.get(id);
+    if (!emp) continue;
+    const lancs = gerarLancamentosEmp(emp, dtStr, mesAno);
+    const st = empStatus(emp);
+    const regBadge = emp.regime === 'SN'
+      ? '<span class="badge badge-sn">SN</span>'
+      : '<span class="badge badge-lp">LP</span>';
     html += `<tr>
-      <td style="color:#9ca3af;font-size:.8rem;">${i+1}</td>
-      <td><span class="${tc}">${l.tipo}</span></td>
-      <td><code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;">${l.debito}</code></td>
-      <td><code style="background:#f1f5f9;padding:1px 5px;border-radius:4px;">${l.credito}</code></td>
-      <td style="font-weight:600;">${fmtBRL(l.valor)}</td>
-      <td style="font-size:.78rem;color:#6b7280;">${l.historico}</td>
+      <td><strong>${escHtml(emp.nome)}</strong></td>
+      <td><code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;">${escHtml(emp.codigo) || '—'}</code></td>
+      <td>${regBadge}</td>
+      <td>${emp.das > 0 ? fmtBRL(emp.das) : '<span style="color:#9ca3af;">—</span>'}</td>
+      <td style="text-align:center;">${emp.prolabores.length}</td>
+      <td style="text-align:center;">${lancs.length}</td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td>
+      <td>
+        <button class="btn-secondary" style="font-size:.78rem;padding:.3rem .7rem;"
+                onclick="downloadCSVSingle('${id}')">⬇️</button>
+      </td>
     </tr>`;
-  });
+  }
   html += '</tbody></table></div>';
-  document.getElementById('previa-tabela').innerHTML = html;
-
-  // Ativar exportar
-  atualizarExportar();
+  container.innerHTML = html;
 }
 
-// ─── EXPORTAR CSV ─────────────────────────────────────────────────────────────
-function atualizarExportar() {
-  if (!state.lancamentos.length) return;
-  const dataLanc = getDataLanc();
-  const dtStr = fmtDateDMY(dataLanc);
-  const linhas = state.lancamentos.map(l =>
-    `${dtStr},${l.debito},${l.credito},${l.valor.toFixed(2)},,${l.historico},1`
-  );
-  const csv = linhas.join('\n');
+// ─── Export ───────────────────────────────────────────────────────────────────
+async function downloadZIP() {
+  if (G.order.length === 0) { alert('Nenhuma empresa configurada.'); return; }
 
-  document.getElementById('export-status').style.display = 'none';
-  document.getElementById('export-action').style.display = 'block';
-  document.getElementById('csv-preview-box').innerHTML =
-    `<p style="font-size:.8rem;font-weight:600;margin-bottom:.5rem;">Prévia do arquivo:</p>
-     <div class="code-preview">${csv}</div>`;
+  const dtStr = fmtDateDMY(getDataLanc());
+  const mesAno = getMesAnoStr();
+  const compSlug = mesAno.replace('/', '');
 
-  // Guardar para download
-  window._csvConteudo = csv;
-  const comp = getCompetencia().replace('/','');
-  window._csvNome = `lancamento_${comp}_1.csv`;
-  document.getElementById('btn-download').textContent = `⬇️ Baixar ${window._csvNome}`;
-}
+  const zip = new JSZip();
+  let count = 0;
 
-function downloadCSV() {
-  if (!window._csvConteudo) return;
-  // Encode para Windows-1252 (compatível com Domínio)
-  const blob = new Blob([window._csvConteudo], {type: 'text/csv;charset=utf-8;'});
+  for (const id of G.order) {
+    const emp = G.empresas.get(id);
+    if (!emp) continue;
+    const lancs = gerarLancamentosEmp(emp, dtStr, mesAno);
+    if (lancs.length === 0) continue;
+    const csv = buildCSV(lancs, dtStr);
+    const nomeArq = `lancamento_${compSlug}_${sanitizeFilename(emp.codigo || emp.nome)}.csv`;
+    zip.file(nomeArq, '﻿' + csv); // BOM for Excel/Domínio compatibility
+    count++;
+  }
+
+  if (count === 0) {
+    alert('Nenhum lançamento gerado. Verifique os dados das empresas.');
+    return;
+  }
+
+  const blob = await zip.generateAsync({ type: 'blob' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = window._csvNome || 'lancamento.csv';
+  a.href = url;
+  a.download = `provisoes_${compSlug}.zip`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-// Set default date
-(function() {
+function downloadCSVSingle(empId) {
+  const emp = G.empresas.get(empId);
+  if (!emp) return;
+  const dtStr = fmtDateDMY(getDataLanc());
+  const mesAno = getMesAnoStr();
+  const compSlug = mesAno.replace('/', '');
+  const lancs = gerarLancamentosEmp(emp, dtStr, mesAno);
+  if (lancs.length === 0) { alert('Nenhum lançamento para esta empresa.'); return; }
+  const csv = '﻿' + buildCSV(lancs, dtStr);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lancamento_${compSlug}_${sanitizeFilename(emp.codigo || emp.nome)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function sanitizeFilename(s) {
+  return (s || 'empresa').replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 40);
+}
+
+// ─── Counter ──────────────────────────────────────────────────────────────────
+function updateCounter() {
+  const nEmp = G.order.length;
+  const nSoc = Array.from(G.empresas.values()).reduce((s, e) => s + e.prolabores.length, 0);
+  const chip = document.getElementById('counter-chip');
+  const badge = document.getElementById('badge-counter');
+  if (nEmp > 0) {
+    const txt = `${nEmp} empresa(s) · ${nSoc} sócio(s)`;
+    chip.textContent = txt;
+    chip.style.display = 'inline-block';
+    badge.textContent = txt;
+    badge.style.display = 'inline-block';
+  } else {
+    chip.style.display = 'none';
+    badge.style.display = 'none';
+  }
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function showStep(n) {
+  [1, 2, 3].forEach(i => {
+    document.getElementById('step-' + i).style.display = i === n ? '' : 'none';
+    const btn = document.getElementById('tab-btn-' + i);
+    if (i === n) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  if (n === 3) renderRevisao();
+}
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(function init() {
   const today = new Date();
-  const y = today.getFullYear(), m = today.getMonth()+1;
-  const lastDay = new Date(y, m, 0).getDate();
-  document.getElementById('inp-data').value = `${y}-${String(m).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
-  document.getElementById('inp-competencia').value = `${String(m).padStart(2,'0')}/${y}`;
+  const y = today.getFullYear();
+  const m = today.getMonth() + 1;
+  const lastDay = new Date(y, m, 0);
+  document.getElementById('inp-data').value =
+    `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`;
+  const compStr = `${String(m).padStart(2,'0')}/${y}`;
+  document.getElementById('inp-competencia').value = compStr;
+  G.competencia = compStr;
+
+  // Initial render
+  renderEmpresaList();
 })();
 </script>
 </body>
